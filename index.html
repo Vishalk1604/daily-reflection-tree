@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Reflection</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cinzel:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #0C0A08;
+  --bg-card:     rgba(255, 240, 210, 0.03);
+  --border:      rgba(200, 155, 90, 0.14);
+  --border-hover:rgba(199, 159, 103, 0.5);
+  --text:        #EAE0CC;
+  --text-dim:    #7A6D5C;
+  --accent:      #C8965A;
+  --axis1:       #7BAFC0;
+  --axis2:       #8FB897;
+  --axis3:       #C4A882;
+}
+
+html { height: 100%; }
+
+@keyframes moveGrad1 {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+@keyframes moveGrad2 {
+  0% { background-position: 100% 0%; }
+  50% { background-position: 0% 100%; }
+  100% { background-position: 100% 0%; }
+}
+
+@keyframes moveGrad3 {
+  0% { background-position: 50% 50%; }
+  50% { background-position: 25% 75%; }
+  100% { background-position: 50% 50%; }
+}
+
+body {
+  min-height: 100%;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.72;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 30% 20%, rgba(200,150,90,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 80% 80%, rgba(123,175,192,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 70% at 50% 50%, rgba(143,184,151,0.05) 0%, transparent 70%);
+  background-size: 200% 200%, 200% 200%, 200% 200%;
+  animation: moveGrad1 15s ease-in-out infinite, moveGrad2 18s ease-in-out infinite, moveGrad3 22s ease-in-out infinite;
+  filter: blur(50px);
+  z-index: 0;
+}
+
+/* ── Grain overlay ───────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  z-index: 2;
+  opacity: 0.4;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 620px;
+}
+
+/* ── Header / axis progress ─────────────────────── */
+#progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 3.5rem;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+#progress.visible { opacity: 1; }
+
+.axis-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 2rem;
+  position: relative;
+}
+
+.axis-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 6px;
+  width: 1px;
+  height: 10px;
+  background: var(--border);
+}
+
+.step-pip {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background 0.5s, transform 0.5s, box-shadow 0.5s;
+}
+
+.axis-step.active .step-pip {
+  background: var(--accent);
+  transform: scale(1.5);
+  box-shadow: 0 0 10px rgba(200,150,90,0.35);
+}
+.axis-step.done .step-pip {
+  background: var(--text-dim);
+  opacity: 0.4;
+}
+
+.step-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  transition: color 0.5s;
+}
+.axis-step.active .step-label { color: var(--accent); }
+
+/* ── Card ────────────────────────────────────────── */
+#card {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#card.visible { opacity: 1; transform: translateY(0); }
+
+/* axis tag above question */
+#axis-tag {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  min-height: 1em;
+  transition: color 0.4s;
+}
+
+/* node text */
+#node-text {
+  color: var(--text);
+  white-space: pre-wrap;
+  margin-bottom: 2rem;
+}
+
+#node-text.t-start {
+  font-size: 1.25rem;
+  line-height: 1.85;
+  color: var(--text);
+}
+
+#node-text.t-question {
+  font-size: 1.5rem;
+  line-height: 1.62;
+  font-weight: 500;
+}
+
+#node-text.t-reflection {
+  font-size: 1.18rem;
+  line-height: 1.9;
+  font-style: italic;
+}
+
+#node-text.t-bridge {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-dim);
+  padding-left: 1rem;
+  border-left: 2px solid var(--accent);
+}
+
+#node-text.t-summary {
+  font-size: 1.1rem;
+  line-height: 1.9;
+}
+
+#node-text.t-end {
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* thin rule */
+.rule {
+  width: 36px;
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 1.6rem;
+  display: none;
+}
+
+/* ── Options ─────────────────────────────────────── */
+#options { display: flex; flex-direction: column; gap: 0.55rem; }
+
+.opt {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  padding: 0.85rem 1.1rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 2px;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: background 0.2s, border-color 0.25s, color 0.2s, opacity 0.3s, transform 0.3s;
+}
+
+.opt.in { opacity: 1; transform: translateY(0); }
+.opt:hover { background: rgba(200,150,90,0.07); border-color: var(--border-hover); }
+.opt.selected { background: rgba(200,150,90,0.11); border-color: var(--accent); color: var(--accent); }
+
+/* ── Continue button ─────────────────────────────── */
+#cont {
+  margin-top: 2rem;
+  background: none;
+  border: 1px solid var(--border-hover);
+  color: var(--text);
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.6rem;
+  cursor: pointer;
+  border-radius: 2px;
+  display: none;
+  transition: border-color 0.25s, color 0.25s;
+}
+#cont.show { display: inline-block; }
+#cont:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Summary accent ──────────────────────────────── */
+.summary-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.2rem;
+}
+
+/* ── Signal dots (summary) ───────────────────────── */
+.signal-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.8rem;
+  flex-wrap: wrap;
+}
+.signal-item { display: flex; flex-direction: column; gap: 0.25rem; }
+.signal-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.signal-val {
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="progress">
+    <div class="axis-step" id="s1"><div class="step-pip"></div><div class="step-label">Locus</div></div>
+    <div class="axis-step" id="s2"><div class="step-pip"></div><div class="step-label">Orientation</div></div>
+    <div class="axis-step" id="s3"><div class="step-pip"></div><div class="step-label">Radius</div></div>
+  </div>
+
+  <div id="card">
+    <div id="axis-tag"></div>
+    <div id="node-text"></div>
+    <div class="rule" id="rule"></div>
+    <div id="options"></div>
+    <button id="cont" onclick="onContinue()">Continue</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  TREE  (loaded from reflection-tree.json)
+// ═══════════════════════════════════════════════════════════════
+
+let TREE = null;
+
+async function loadTree() {
+  try {
+    const response = await fetch('tree/reflection-tree.json');
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    TREE = await response.json();
+    renderNode('START');
+  } catch (error) {
+    console.error('Failed to load reflection-tree.json:', error);
+    document.getElementById('node-text').textContent = 'Error loading reflection data.';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+
+const state = {
+  answers: {},
+  signals: {
+    axis1: { internal:0, external:0 },
+    axis2: { contribution:0, entitlement:0 },
+    axis3: { self:0, team:0, other:0, beyond:0, shift:0 },
+    shift: { positive:0 }
+  },
+  path: [],
+  currentId: 'START',
+  pendingNext: null,
+  summaryLogic: null
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  ENGINE
+// ═══════════════════════════════════════════════════════════════
+
+function getNode(id) {
+  return TREE.nodes.find(n => n.id === id);
+}
+
+function getDominant(signals) {
+  // Exclude 'shift' — it's a transition signal, not a real pole
+  const filtered = Object.entries(signals).filter(([k]) => k !== 'shift');
+  if (!filtered.length) return null;
+  return filtered.reduce((a,b) => b[1] > a[1] ? b : a)[0];
+}
+
+function recordSignal(sig) {
+  if (!sig) return;
+  const [axis, pole] = sig.split(':');
+  if (state.signals[axis] && state.signals[axis][pole] !== undefined) {
+    state.signals[axis][pole]++;
+  }
+}
+
+function interpolate(text) {
+  return text.replace(/\{([^}]+)\}/g, (_, key) => state.answers[key] || key);
+}
+
+function resolveDecision(node) {
+  for (const route of node.routes) {
+    const c = route.condition;
+    if (c.type === 'answer_in') {
+      if (c.values.includes(state.answers[c.node])) return route.next;
+    } else if (c.type === 'answer_is') {
+      if (state.answers[c.node] === c.value) return route.next;
+    } else if (c.type === 'signal_dominant') {
+      if (getDominant(state.signals[c.axis]) === c.pole) return route.next;
+    } else if (c.type === 'signal_dominant_in') {
+      if (c.poles.includes(getDominant(state.signals[c.axis]))) return route.next;
+    } else if (c.type === 'signal_threshold') {
+      // FEATURE #3: Signal-based branching with threshold (SIGNAL-BASED BRANCHING)
+      const signalCount = state.signals[c.axis][c.pole] || 0;
+      if (signalCount >= (c.min || 0)) return route.next;
+    } else if (c.type === 'multi_signal') {
+      // FEATURE #1 UPGRADED: Cross-axis decision — all conditions must match
+      const allMatch = c.conditions.every(cond => {
+        const signals = state.signals[cond.axis];
+        const dominant = getDominant(signals);
+        return dominant === cond.pole;
+      });
+      if (allMatch) return route.next;
+    } else if (c.type === 'default') {
+      return route.next;
+    }
+  }
+  return node.routes[0].next;
+}
+
+function buildSummary() {
+  const T = TREE.summaryTemplates;
+  const a1 = state.signals.axis1;
+  const a2 = state.signals.axis2;
+
+  const axis1dom = a1.internal >= a1.external ? 'internal' : 'external';
+  const axis2dom = a2.contribution >= a2.entitlement ? 'contribution' : 'entitlement';
+
+  // Axis3 dominant — exclude shift
+  const a3clean = {self:state.signals.axis3.self, team:state.signals.axis3.team,
+                   other:state.signals.axis3.other, beyond:state.signals.axis3.beyond};
+  const axis3dom = getDominant(a3clean) || 'self';
+
+  // FEATURE #2 UPGRADED: Shift signal affects tone
+  const hasPositiveShift = state.signals.shift.positive > 0;
+  const toneAdjustment = hasPositiveShift ? 
+    `The fact that you've reflected differently about today since we started — that matters. That's the beginning of narrative shift.` :
+    ``;
+
+  const dayWord = state.answers['A1_OPEN'] || 'that kind of day';
+  
+  // FEATURE #7: Include actual user answers for personalization
+  const interactionAnswer = state.answers['A2_OPEN'] || 'how you showed up';
+
+  // FEATURE #5 UPGRADED: Track summaryLogic for evaluation transparency
+  state.summaryLogic = {
+    axis1: { dominant: axis1dom, internal: a1.internal, external: a1.external },
+    axis2: { dominant: axis2dom, contribution: a2.contribution, entitlement: a2.entitlement },
+    axis3: { dominant: axis3dom, self: state.signals.axis3.self, team: state.signals.axis3.team, other: state.signals.axis3.other, beyond: state.signals.axis3.beyond },
+    shift: { positive: state.signals.shift.positive, applied: hasPositiveShift },
+    insightUsed: `${axis1dom}_${axis2dom}`,
+    closingUsed: axis3dom
+  };
+
+  return [
+    `Here's what today looked like from the inside.`,
+    ``,
+    `You described it as "${dayWord}." Across the day, ${T.axis1[axis1dom]}. When it came to what you gave, there was ${T.axis2[axis2dom]}. And the frame you held — who else was in it — extended to ${T.axis3[axis3dom]}.`,
+    ``,
+    `In a moment earlier, you said: "${interactionAnswer}" That choice, inside a day you called "${dayWord}", tells you something about yourself.`,
+    ``,
+    T.crossAxisInsights[`${axis1dom}_${axis2dom}`] || '',
+    toneAdjustment ? `\n${toneAdjustment}` : '',
+    ``,
+    `One thought to carry into tomorrow: ${T.closingThoughts[axis3dom] || ''}`
+  ].join('\n');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDERING
+// ═══════════════════════════════════════════════════════════════
+
+const axisColors = { 1:'var(--axis1)', 2:'var(--axis2)', 3:'var(--axis3)' };
+const axisNames  = { 1:'I. Locus', 2:'II. Orientation', 3:'III. Radius' };
+
+function setProgress(axisNum) {
+  const prog = document.getElementById('progress');
+  if (axisNum === null) { prog.classList.remove('visible'); return; }
+  prog.classList.add('visible');
+  ['s1','s2','s3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if (i+1 < axisNum) el.classList.add('done');
+    else if (i+1 === axisNum) el.classList.add('active');
+  });
+}
+
+function transition(renderFn) {
+  const card = document.getElementById('card');
+  card.classList.remove('visible');
+  setTimeout(() => { renderFn(); card.classList.add('visible'); }, 320);
+}
+
+function renderNode(id) {
+  const node = getNode(id);
+  if (!node) { console.error('Unknown node:', id); return; }
+  state.path.push(id);
+  state.currentId = id;
+
+  // Decision nodes: auto-resolve without rendering
+  if (node.type === 'decision') {
+    const next = resolveDecision(node);
+    setTimeout(() => renderNode(next), 40);
+    return;
+  }
+
+  transition(() => {
+    const $text = document.getElementById('node-text');
+    const $opts = document.getElementById('options');
+    const $cont = document.getElementById('cont');
+    const $rule = document.getElementById('rule');
+    const $tag  = document.getElementById('axis-tag');
+
+    // Reset
+    $opts.innerHTML = '';
+    $cont.classList.remove('show');
+    $rule.style.display = 'none';
+    $tag.textContent = '';
+    $text.className = '';
+    state.pendingNext = null;
+
+    if (node.type === 'start') {
+      setProgress(null);
+      $text.className = 't-start';
+      $text.textContent = node.text;
+      $cont.textContent = 'Begin';
+      $cont.classList.add('show');
+      state.pendingNext = node.next;
+    }
+
+    else if (node.type === 'question') {
+      setProgress(node.axis);
+      $tag.textContent = axisNames[node.axis];
+      $text.className = 't-question';
+      $text.textContent = interpolate(node.text);
+      $rule.style.display = 'block';
+
+      node.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt';
+        btn.textContent = opt.label;
+        $opts.appendChild(btn);
+        // Stagger in
+        setTimeout(() => btn.classList.add('in'), 80 + i * 55);
+        btn.onclick = () => {
+          if ($opts.querySelector('.selected')) return; // prevent double-click
+          btn.classList.add('selected');
+          state.answers[id] = opt.label;
+          if (opt.signal) recordSignal(opt.signal);
+          setTimeout(() => renderNode(opt.next), 400);
+        };
+      });
+    }
+
+    else if (node.type === 'reflection') {
+      setProgress(node.axis);
+      $tag.textContent = axisNames[node.axis];
+      if (node.signal) recordSignal(node.signal);
+      $text.className = 't-reflection';
+      $text.textContent = interpolate(node.text);
+      $cont.textContent = 'Continue';
+      $cont.classList.add('show');
+      state.pendingNext = node.next;
+    }
+
+    else if (node.type === 'bridge') {
+      setProgress(null);
+      $text.className = 't-bridge';
+      
+      // FEATURE #6: ADAPTIVE BRIDGES - Select text based on signals
+      let bridgeText = node.text || '';
+      if (node.adaptive && node.contentBySignal) {
+        // Determine which axis signal is dominant
+        if (node.contentBySignal['axis1:internal'] || node.contentBySignal['axis1:external']) {
+          const axis1dom = (state.signals.axis1.internal || 0) >= (state.signals.axis1.external || 0) ? 'internal' : 'external';
+          bridgeText = node.contentBySignal[`axis1:${axis1dom}`] || '';
+        } else if (node.contentBySignal['axis2:contribution'] || node.contentBySignal['axis2:entitlement']) {
+          const axis2dom = (state.signals.axis2.contribution || 0) >= (state.signals.axis2.entitlement || 0) ? 'contribution' : 'entitlement';
+          bridgeText = node.contentBySignal[`axis2:${axis2dom}`] || '';
+        }
+      }
+      
+      $text.textContent = interpolate(bridgeText || 'Continuing to next reflection...');
+      $cont.textContent = 'Continue';
+      $cont.classList.add('show');
+      state.pendingNext = node.next;
+    }
+
+    else if (node.type === 'loopback') {
+      // FEATURE #5: LOOP-BACK NODE - Revisits earlier assumptions
+      setProgress(null);
+      $text.className = 't-question';
+      $text.textContent = interpolate(node.text);
+      $rule.style.display = 'block';
+
+      node.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt';
+        btn.textContent = opt.label;
+        $opts.appendChild(btn);
+        setTimeout(() => btn.classList.add('in'), 80 + i * 55);
+        btn.onclick = () => {
+          if ($opts.querySelector('.selected')) return;
+          btn.classList.add('selected');
+          setTimeout(() => renderNode(opt.next), 400);
+        };
+      });
+    }
+
+    else if (node.type === 'summary') {
+      setProgress(null);
+      // Build summary header
+      const label = document.createElement('div');
+      label.className = 'summary-label';
+      label.textContent = '';
+      $opts.before(label);
+      document.getElementById('card').insertBefore(label, $text);
+
+      $text.className = 't-summary';
+      $text.textContent = buildSummary();
+      $rule.style.display = 'block';
+      $cont.textContent = 'Close';
+      $cont.classList.add('show');
+      state.pendingNext = node.next;
+    }
+
+    else if (node.type === 'end') {
+      setProgress(null);
+      $text.className = 't-end';
+      $text.textContent = node.text;
+    }
+  });
+}
+
+function onContinue() {
+  if (state.pendingNext) {
+    const next = state.pendingNext;
+    state.pendingNext = null;
+    renderNode(next);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════════════
+loadTree();
+</script>
+</body>
+</html>
