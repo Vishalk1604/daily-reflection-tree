@@ -341,21 +341,657 @@ body::before {
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-//  TREE  (loaded from reflection-tree.json)
+//  TREE  (embedded data - single file)
 // ═══════════════════════════════════════════════════════════════
 
-let TREE = null;
+let TREE = {
+  "meta": {
+    "title": "The Daily Reflection Tree",
+    "version": "1.0",
+    "description": "A deterministic end-of-day reflection tool walking an employee through three psychological axes: Locus of Control, Orientation (Contribution vs Entitlement), and Radius of Concern. No LLM is called at runtime. Every path is fully deterministic — same answers produce the same conversation, every time.",
+    "axes": {
+      "axis1": {
+        "name": "Locus",
+        "tagline": "Victim vs Victor",
+        "poles": ["internal", "external"],
+        "sources": [
+          "Rotter, J.B. (1954) — Social Learning and Clinical Psychology (Locus of Control)",
+          "Dweck, C.S. (2006) — Mindset: The New Psychology of Success (Growth vs Fixed Mindset)"
+        ]
+      },
+      "axis2": {
+        "name": "Orientation",
+        "tagline": "Entitlement vs Contribution",
+        "poles": ["contribution", "entitlement"],
+        "sources": [
+          "Campbell, W.K., Bonacci, A.M., Shelton, J., Exline, J.J., & Bushman, B.J. (2004) — Psychological Entitlement",
+          "Organ, D.W. (1988) — Organizational Citizenship Behavior"
+        ]
+      },
+      "axis3": {
+        "name": "Radius",
+        "tagline": "Self-Centrism vs Altrocentrism",
+        "poles": ["self", "team", "other", "beyond"],
+        "sources": [
+          "Maslow, A.H. (1969) — The Farther Reaches of Human Nature (Self-Transcendence)",
+          "Batson, C.D. (2011) — Altruism in Humans (Perspective-Taking)"
+        ]
+      }
+    },
+    "nodeCount": 27,
+    "nodeTypeCounts": {
+      "start": 1,
+      "question": 10,
+      "decision": 5,
+      "reflection": 7,
+      "bridge": 2,
+      "summary": 1,
+      "end": 1
+    }
+  },
 
-async function loadTree() {
-  try {
-    const response = await fetch('tree/reflection-tree.json');
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    TREE = await response.json();
-    renderNode('START');
-  } catch (error) {
-    console.error('Failed to load reflection-tree.json:', error);
-    document.getElementById('node-text').textContent = 'Error loading reflection data.';
-  }
+  "summaryTemplates": {
+    "axis1": {
+      "internal": "you stayed close to your own agency — noticing where you had a hand in what happened",
+      "external": "the day's weight felt largely outside your control — circumstances, others, or conditions pulling the outcomes"
+    },
+    "axis2": {
+      "contribution": "a giving orientation — more invested in what you put in than what you got back",
+      "entitlement": "an honest awareness of fairness and recognition — noticing what felt unearned or unacknowledged"
+    },
+    "axis3": {
+      "self": "your own frame — processing it as your challenge to solve alone",
+      "team": "your immediate circle — aware of the shared weight you and your team were carrying",
+      "other": "a specific someone — a colleague whose experience entered your awareness",
+      "beyond": "something larger than your immediate role — the people your work ultimately reaches"
+    },
+    "crossAxisInsights": {
+      "internal_contribution": "When you own your response to circumstances AND direct energy toward others, that's the most generative combination there is. It also happens to be the rarest.",
+      "internal_entitlement": "You stayed close to your agency today. The next experiment: point that same precision outward — toward what you can give, not just what you're owed.",
+      "external_contribution": "Even on a day where the outcomes felt outside your hands, you still gave. That's more remarkable than it sounds. You didn't need to own the results to contribute meaningfully.",
+      "external_entitlement": "Today felt like it happened to you more than through you. That's a real experience — not a character flaw. The question isn't why. It's: what looks even slightly different tomorrow?"
+    },
+    "closingThoughts": {
+      "self": "Is there someone who could be in your challenges with you tomorrow? The answer might surprise you.",
+      "team": "You're part of something. On the days that don't feel like it — remember today.",
+      "other": "The people your work reaches are real. Keep one of them somewhere in your frame tomorrow.",
+      "beyond": "Keep looking up from your work. The purpose you're serving — it's the most durable fuel there is."
+    }
+  },
+
+  "nodes": [
+    {
+      "id": "START",
+      "type": "start",
+      "text": "Good evening.\n\nBefore this day disappears completely, let's spend a few minutes with it.\n\nNo grades. No performance review. Just you, looking back honestly.",
+      "next": "A1_OPEN"
+    },
+
+    {
+      "id": "A1_OPEN",
+      "type": "question",
+      "axis": 1,
+      "text": "If you had to pick one word for today, what would it be?",
+      "options": [
+        { "label": "Productive", "signal": null, "next": "A1_D1" },
+        { "label": "Tough",      "signal": null, "next": "A1_D1" },
+        { "label": "Mixed",      "signal": null, "next": "A1_D1" },
+        { "label": "Draining",   "signal": null, "next": "A1_D1" }
+      ]
+    },
+
+    {
+      "id": "A1_D1",
+      "type": "decision",
+      "comment": "Routes to the appropriate Axis 1 follow-up based on the emotional valence of the opening answer.",
+      "routes": [
+        {
+          "condition": { "type": "answer_in", "node": "A1_OPEN", "values": ["Productive", "Mixed"] },
+          "next": "A1_Q_HIGH"
+        },
+        {
+          "condition": { "type": "answer_in", "node": "A1_OPEN", "values": ["Tough", "Draining"] },
+          "next": "A1_Q_LOW"
+        }
+      ]
+    },
+
+    {
+      "id": "A1_Q_HIGH",
+      "type": "question",
+      "axis": 1,
+      "text": "You called it \"{A1_OPEN}\". When something went well today, what was most behind it?",
+      "options": [
+        { "label": "I had set it up or prepared for it",                        "signal": "axis1:internal", "next": "A1_D2" },
+        { "label": "The circumstances happened to align in my favour",           "signal": "axis1:external", "next": "A1_D2" },
+        { "label": "I adapted quickly when things shifted unexpectedly",          "signal": "axis1:internal", "next": "A1_D2" },
+        { "label": "The right people showed up at the right moment",             "signal": "axis1:external", "next": "A1_D2" }
+      ]
+    },
+
+    {
+      "id": "A1_Q_LOW",
+      "type": "question",
+      "axis": 1,
+      "text": "You called it \"{A1_OPEN}\". When things got difficult, what was your first move?",
+      "options": [
+        { "label": "I looked for what I could still do or influence",             "signal": "axis1:internal", "next": "A1_D2" },
+        { "label": "I felt stuck, waiting for something outside to change",       "signal": "axis1:external", "next": "A1_D2" },
+        { "label": "I pushed through on my own, even when it was hard",           "signal": "axis1:internal", "next": "A1_D2" },
+        { "label": "I felt like the situation had already decided the outcome",   "signal": "axis1:external", "next": "A1_D2" }
+      ]
+    },
+
+    {
+      "id": "A1_D2",
+      "type": "decision",
+      "comment": "Routes to depth question based on signal. This adds a second layer (DEPTH IMPROVEMENT #1).",
+      "routes": [
+        {
+          "condition": { "type": "answer_in", "node": "A1_OPEN", "values": ["Productive", "Mixed"] },
+          "next": "A1_Q_DEPTH_HIGH"
+        },
+        {
+          "condition": { "type": "answer_in", "node": "A1_OPEN", "values": ["Tough", "Draining"] },
+          "next": "A1_Q_DEPTH_LOW"
+        }
+      ]
+    },
+
+    {
+      "id": "A1_Q_DEPTH_HIGH",
+      "type": "question",
+      "axis": 1,
+      "text": "What happened next — after that moment when things worked? Did you assume it would keep going, or did something reset?",
+      "options": [
+        { "label": "I thought about what I'd do if it went wrong next",           "signal": "axis1:internal", "next": "A1_D3" },
+        { "label": "I just enjoyed it while it lasted, figured luck might change", "signal": "axis1:external", "next": "A1_D3" },
+        { "label": "I immediately started preparing for the next problem",        "signal": "axis1:internal", "next": "A1_D3" },
+        { "label": "I waited to see what would happen, mostly powerless",         "signal": "axis1:external", "next": "A1_D3" }
+      ]
+    },
+
+    {
+      "id": "A1_Q_DEPTH_LOW",
+      "type": "question",
+      "axis": 1,
+      "text": "When you felt stuck or things got hard — did you ask yourself 'What can I still do here?' or did it feel like the answers weren't in your hands?",
+      "options": [
+        { "label": "I asked myself what I could do — and usually found something",    "signal": "axis1:internal", "next": "A1_D3" },
+        { "label": "I assumed failure was inevitable anyway — why bother trying?",   "signal": "axis1:external", "next": "A1_D3" },
+        { "label": "I decided early on that my action wouldn't make any difference",  "signal": "axis1:external", "next": "A1_D3" },
+        { "label": "I kept searching for what I could influence, even tiny things",   "signal": "axis1:internal", "next": "A1_D3" }
+      ]
+    },
+
+    {
+      "id": "A1_D3",
+      "type": "decision",
+      "comment": "Routes to reflection based on accumulated internal/external signals (DEPTH IMPROVEMENT #2).",
+      "routes": [
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis1", "pole": "internal" },
+          "next": "A1_R_INTERNAL"
+        },
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis1", "pole": "external" },
+          "next": "A1_R_EXTERNAL"
+        }
+      ]
+    },
+
+    {
+      "id": "A1_R_INTERNAL",
+      "type": "reflection",
+      "axis": 1,
+      "signal": "axis1:internal",
+      "text": "You said today was \"{A1_OPEN}\" — and yet somewhere in it, you stayed close to your own hand in what happened.\n\nThat's not optimism. That's precision. Noticing your agency doesn't mean you controlled everything. It means you didn't hand the wheel entirely to circumstance.\n\nThat's a quiet kind of clarity. Worth carrying forward.",
+      "next": "BRIDGE_1_2"
+    },
+
+    {
+      "id": "A1_R_EXTERNAL",
+      "type": "reflection",
+      "axis": 1,
+      "signal": "axis1:external",
+      "text": "You said today was \"{A1_OPEN}\". A day like that tends to pull attention outward — toward what others did, what circumstances allowed, what luck decided.\n\nThat's a fair response. But somewhere in it, even quietly, you made a call. Even waiting is a decision.\n\nWe'll carry that thread forward.",
+      "next": "BRIDGE_1_2"
+    },
+
+    {
+      "id": "BRIDGE_1_2",
+      "type": "bridge",
+      "adaptive": true,
+      "comment": "ADAPTIVE BRIDGE #1 - Text changes based on Axis 1 signal dominance (FEATURE #6)",
+      "contentBySignal": {
+        "axis1:internal": "You stayed close to your own moves today — even when things were uncertain. Now let's look at what you gave in the middle of that.",
+        "axis1:external": "Even on a day pulled by circumstance, something still moved through you. Let's look at where your energy actually went."
+      },
+      "next": "A2_OPEN"
+    },
+
+    {
+      "id": "A2_OPEN",
+      "type": "question",
+      "axis": 2,
+      "text": "Think about one interaction you had with someone today. Earlier you said today was '{A1_OPEN}' — in that context, how did you show up for them? (CROSS-AXIS MEMORY #1)",
+      "options": [
+        { "label": "I helped with something that wasn't really my job to fix",                    "signal": "axis2:contribution", "next": "A2_D1" },
+        { "label": "I shared what I knew without waiting to be asked or needed",                  "signal": "axis2:contribution", "next": "A2_D1" },
+        { "label": "I kept thinking about what I didn't get back for what I put in",              "signal": "axis2:entitlement",  "next": "A2_D1" },
+        { "label": "I noticed the imbalance — they didn't do the same for me, or didn't notice", "signal": "axis2:entitlement",  "next": "A2_D1" }
+      ]
+    },
+
+    {
+      "id": "A2_D1",
+      "type": "decision",
+      "comment": "Routes to the appropriate Axis 2 follow-up based on which orientation signal was recorded.",
+      "routes": [
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis2", "pole": "contribution" },
+          "next": "A2_Q_CONTRIB"
+        },
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis2", "pole": "entitlement" },
+          "next": "A2_Q_ENTITLE"
+        }
+      ]
+    },
+
+    {
+      "id": "A2_Q_CONTRIB",
+      "type": "question",
+      "axis": 2,
+      "text": "That kind of effort is easy to let pass without noticing. What was actually happening inside — was it natural, or were you working at it?",
+      "options": [
+        { "label": "It felt like the right thing — genuinely automatic",           "signal": "axis2:contribution", "next": "A2_D2" },
+        { "label": "I had to choose it — would've been easier to stay quiet",     "signal": "axis2:contribution", "next": "A2_D2" },
+        { "label": "I wasn't thinking — just did it in the flow of the moment",   "signal": "axis2:contribution", "next": "A2_D2" },
+        { "label": "I hoped it would create goodwill or be remembered",           "signal": "axis2:contribution", "next": "A2_D2" }
+      ]
+    },
+
+    {
+      "id": "A2_Q_ENTITLE",
+      "type": "question",
+      "axis": 2,
+      "text": "That feeling — of giving more than you receive — did it stay in the background, or did you find yourself focused on it repeatedly?",
+      "options": [
+        { "label": "It kept returning throughout the day, hard to shake",         "signal": "axis2:entitlement", "next": "A2_D2" },
+        { "label": "It bothered me, then I moved past it and redirected",        "signal": "axis2:entitlement", "next": "A2_D2" },
+        { "label": "It's still actively with me — I'm thinking about it now",     "signal": "axis2:entitlement", "next": "A2_D2" },
+        { "label": "Honestly, once I found something else to focus on, it faded",  "signal": "axis2:entitlement", "next": "A2_D2" }
+      ]
+    },
+
+    {
+      "id": "A2_D2",
+      "type": "decision",
+      "comment": "Routes to depth question based on orientation signal (DEPTH IMPROVEMENT #3).",
+      "routes": [
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis2", "pole": "contribution" },
+          "next": "A2_Q_DEPTH_CONTRIB"
+        },
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis2", "pole": "entitlement" },
+          "next": "A2_Q_DEPTH_ENTITLE"
+        }
+      ]
+    },
+
+    {
+      "id": "A2_Q_DEPTH_CONTRIB",
+      "type": "question",
+      "axis": 2,
+      "text": "On days like today, when you do show up for someone else — do you think about what you're not getting in return? Or does that genuinely not factor in?",
+      "options": [
+        { "label": "I genuinely don't track it — the exchange doesn't register for me",          "signal": "axis2:contribution", "next": "A2_D3" },
+        { "label": "I notice the imbalance but choose to give anyway — it matters to me",        "signal": "axis2:contribution", "next": "A2_D3" },
+        { "label": "Some version of me keeps score, but I don't want to",                        "signal": "axis2:entitlement", "next": "A2_D3" },
+        { "label": "I do keep score, but I tell myself I shouldn't",                             "signal": "axis2:entitlement", "next": "A2_D3" }
+      ]
+    },
+
+    {
+      "id": "A2_Q_DEPTH_ENTITLE",
+      "type": "question",
+      "axis": 2,
+      "text": "When you notice you're giving more than you receive — what's the story you tell yourself about why? (BEHAVIORAL SPECIFICITY)",
+      "options": [
+        { "label": "I'm more invested in the work than others are",                              "signal": "axis2:entitlement", "next": "A2_D3" },
+        { "label": "I competently handle things others don't, so I end up carrying more",        "signal": "axis2:entitlement", "next": "A2_D3" },
+        { "label": "People take advantage, consciously or not",                                  "signal": "axis2:entitlement", "next": "A2_D3" },
+        { "label": "I'm the kind of person who does more — and maybe I resent that about me",    "signal": "axis2:contribution", "next": "A2_D3" }
+      ]
+    },
+
+    {
+      "id": "A2_D3",
+      "type": "decision",
+      "comment": "Routes to reflection based on accumulated axis2 signals (DEPTH IMPROVEMENT #4).",
+      "routes": [
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis2", "pole": "contribution" },
+          "next": "A2_R_CONTRIB"
+        },
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis2", "pole": "entitlement" },
+          "next": "A2_R_ENTITLE"
+        }
+      ]
+    },
+
+    {
+      "id": "A2_R_CONTRIB",
+      "type": "reflection",
+      "axis": 2,
+      "signal": "axis2:contribution",
+      "text": "What you described — helping without being asked, sharing without keeping score — isn't just generosity. It's a choice about what work means to you.\n\nContribution leaves a different residue than effort alone. You tend to end the day feeling differently when you've given something that wasn't required.\n\nYou probably already know that feeling. Today had it.",
+      "next": "BRIDGE_2_3"
+    },
+
+    {
+      "id": "A2_R_ENTITLE",
+      "type": "reflection",
+      "axis": 2,
+      "signal": "axis2:entitlement",
+      "text": "The feeling of giving more than you receive is real. It's also almost universal — most people feel underrecognized, most of the time.\n\nThe question isn't whether the feeling is valid. It almost certainly is. The question is what you do while holding it.\n\nResentment and generosity can coexist. They don't have to cancel each other out.",
+      "next": "BRIDGE_2_3"
+    },
+
+    {
+      "id": "BRIDGE_2_3",
+      "type": "bridge",
+      "adaptive": true,
+      "comment": "ADAPTIVE BRIDGE #2 - Text changes based on Axis 2 signal dominance (FEATURE #6)",
+      "contentBySignal": {
+        "axis2:contribution": "You showed up today — in the ways that mattered. Now, one last question: who was really in your frame when you did?",
+        "axis2:entitlement": "That imbalance you're carrying is real. It matters that you notice it. Now — who else was in your frame today, and did they see the same things you did?"
+      },
+      "next": "A3_OPEN"
+    },
+
+    {
+      "id": "A3_OPEN",
+      "type": "question",
+      "axis": 3,
+      "text": "When you think about today's biggest challenge or most meaningful moment — who else comes to mind?",
+      "options": [
+        { "label": "No one, really — it was mine to deal with",                                       "signal": "axis3:self",   "next": "A3_D1" },
+        { "label": "My immediate team — we were all caught up in it",                                 "signal": "axis3:team",   "next": "A3_D1" },
+        { "label": "A specific colleague who was having a harder time than me",                       "signal": "axis3:other",  "next": "A3_D1" },
+        { "label": "The people we ultimately serve — customers, users, or the community",             "signal": "axis3:beyond", "next": "A3_D1" }
+      ]
+    },
+
+    {
+      "id": "A3_D1",
+      "type": "decision",
+      "comment": "Routes to the appropriate Axis 3 follow-up based on the radius signal from A3_OPEN.",
+      "routes": [
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis3", "pole": "self" },
+          "next": "A3_Q_SELF"
+        },
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis3", "pole": "team" },
+          "next": "A3_Q_TEAM"
+        },
+        {
+          "condition": { "type": "signal_dominant_in", "axis": "axis3", "poles": ["other", "beyond"] },
+          "next": "A3_Q_BEYOND"
+        }
+      ]
+    },
+
+    {
+      "id": "A3_Q_SELF",
+      "type": "question",
+      "axis": 3,
+      "text": "Carrying something alone has its own kind of integrity. What was it actually like? (And earlier you said '{A1_OPEN}' — did that make it harder?)",
+      "options": [
+        { "label": "Manageable — I generally prefer working through things independently",             "signal": "axis3:self",  "next": "A3_D2" },
+        { "label": "Exhausting — I wish there had been someone else in it with me",                   "signal": "axis3:shift", "next": "A3_D2" },
+        { "label": "Fine in the moment, but I wonder now whether someone could have helped",          "signal": "axis3:shift", "next": "A3_D2" },
+        { "label": "Lonely, if I'm being honest about it",                                            "signal": "axis3:shift", "next": "A3_D2" }
+      ]
+    },
+
+    {
+      "id": "A3_Q_TEAM",
+      "type": "question",
+      "axis": 3,
+      "text": "When you say your team was in it — were you aware of that in the moment, or only in looking back?",
+      "options": [
+        { "label": "In the moment — I could feel the shared weight",                            "signal": "axis3:team",   "next": "A3_D2" },
+        { "label": "Mostly in hindsight — I was in my own lane at the time",                    "signal": "axis3:team",   "next": "A3_D2" },
+        { "label": "In the moment, and I actively tried to help others where I could",          "signal": "axis3:beyond", "next": "A3_D2" },
+        { "label": "Not really — I ended up treating it as a personal challenge",               "signal": "axis3:self",   "next": "A3_D2" }
+      ]
+    },
+
+    {
+      "id": "A3_Q_BEYOND",
+      "type": "question",
+      "axis": 3,
+      "text": "What made you look past your own experience — toward the colleague, the user, the people beyond you?",
+      "options": [
+        { "label": "They were right in front of me — it was hard not to notice",                "signal": "axis3:other",  "next": "A3_D2" },
+        { "label": "I made a deliberate choice to look up from my own situation",               "signal": "axis3:beyond", "next": "A3_D2" },
+        { "label": "I'm not sure — it happened more naturally than intentionally",              "signal": "axis3:other",  "next": "A3_D2" },
+        { "label": "It's something I try to keep front of mind intentionally",                  "signal": "axis3:beyond", "next": "A3_D2" }
+      ]
+    },
+
+    {
+      "id": "A3_D2",
+      "type": "decision",
+      "comment": "Routes to a depth question that probes even deeper (DEPTH IMPROVEMENT #5). This adds a second layer for Axis 3.",
+      "routes": [
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis3", "pole": "self" },
+          "next": "A3_Q_DEPTH_SELF"
+        },
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis3", "pole": "team" },
+          "next": "A3_Q_DEPTH_TEAM"
+        },
+        {
+          "condition": { "type": "signal_dominant_in", "axis": "axis3", "poles": ["other", "beyond"] },
+          "next": "A3_Q_DEPTH_BEYOND"
+        }
+      ]
+    },
+
+    {
+      "id": "A3_Q_DEPTH_SELF",
+      "type": "question",
+      "axis": 3,
+      "text": "Is that independence a genuine strength — or a default you've settled into? Be honest.",
+      "options": [
+        { "label": "It's genuine strength. I'm more effective that way.",                              "signal": "axis3:self",   "next": "A3_D3" },
+        { "label": "It's more of a default — I'm not sure I'd choose it if I felt safe",             "signal": "axis3:shift", "next": "A3_D3" },
+        { "label": "It started as strength, but it's becoming exhausting",                            "signal": "axis3:shift", "next": "A3_D3" },
+        { "label": "I'm starting to see the cost of it",                                              "signal": "axis3:shift", "next": "A3_D3" }
+      ]
+    },
+
+    {
+      "id": "A3_Q_DEPTH_TEAM",
+      "type": "question",
+      "axis": 3,
+      "text": "Is the awareness of your team's presence changing how you think about your own challenges? Or does knowing they're there not really shift anything?",
+      "options": [
+        { "label": "It changes everything — knowing we're in this together makes it bearable",        "signal": "axis3:team",   "next": "A3_D3" },
+        { "label": "It helps, but the burden still feels personal",                                   "signal": "axis3:team",   "next": "A3_D3" },
+        { "label": "Actually, it makes me more self-reliant — I don't want to drag them in",          "signal": "axis3:self",   "next": "A3_D3" },
+        { "label": "I'm noticing their presence more now, but I'm not sure what to do with it",       "signal": "axis3:beyond", "next": "A3_D3" }
+      ]
+    },
+
+    {
+      "id": "A3_Q_DEPTH_BEYOND",
+      "type": "question",
+      "axis": 3,
+      "text": "When you look at the people beyond you — the ones your work reaches — how often does that actually change your decisions?",
+      "options": [
+        { "label": "Daily. It's the main thing that orients me.",                                     "signal": "axis3:beyond", "next": "A3_D3" },
+        { "label": "Often, but not always. Sometimes the immediate stuff takes over.",                "signal": "axis3:beyond", "next": "A3_D3" },
+        { "label": "Occasionally. It's more of an ideal than a practice.",                            "signal": "axis3:other",  "next": "A3_D3" },
+        { "label": "I think about it, but it doesn't really change what I do",                        "signal": "axis3:shift", "next": "A3_D3" }
+      ]
+    },
+
+    {
+      "id": "A3_D3",
+      "type": "decision",
+      "comment": "Routes to appropriate reflection based on final axis3 signal dominance (DEPTH IMPROVEMENT #6).",
+      "routes": [
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis3", "pole": "self" },
+          "next": "A3_R_SELF"
+        },
+        {
+          "condition": { "type": "signal_dominant", "axis": "axis3", "pole": "team" },
+          "next": "A3_R_COLLECTIVE"
+        },
+        {
+          "condition": { "type": "signal_dominant_in", "axis": "axis3", "poles": ["other", "beyond"] },
+          "next": "A3_R_TRANSCENDENT"
+        }
+      ]
+    },
+
+    {
+      "id": "A3_R_SELF",
+      "type": "reflection",
+      "axis": 3,
+      "signal": "axis3:self",
+      "text": "Handling something alone is sometimes the right call. Independence has genuine value — it's not automatically a failure of collaboration.\n\nBut it's worth occasionally asking: is this a deliberate choice, or a default? Is there someone who could have been in this with you — and would that have changed anything?\n\nNot a criticism. Just a question worth sitting with tonight.",
+      "next": "A3_LOOPBACK"
+    },
+
+    {
+      "id": "A3_R_COLLECTIVE",
+      "type": "reflection",
+      "axis": 3,
+      "signal": "axis3:team",
+      "text": "You held your own experience and remained aware of others at the same time. That's not always easy — especially on a {A1_OPEN} kind of day.\n\nAwareness of others contextualizes struggle. It doesn't erase it. But knowing you're part of something larger changes the texture of even a difficult day.\n\nThat's not a small thing.",
+      "next": "A3_LOOPBACK"
+    },
+
+    {
+      "id": "A3_R_TRANSCENDENT",
+      "type": "reflection",
+      "axis": 3,
+      "signal": "axis3:beyond",
+      "text": "You looked past your own frame — toward the colleague who needed something, or the person your work ultimately reaches. That outward turn is worth naming.\n\nMaslow called this self-transcendence — the place where meaning stops being about you and starts being about what you're part of. Most people find this position more durable than the alternatives.\n\nIt sounds like you already understand why.",
+      "next": "A3_LOOPBACK"
+    },
+
+    {
+      "id": "A3_LOOPBACK",
+      "type": "loopback",
+      "comment": "LOOPBACK NODE (FEATURE #5 UPGRADED) - Revisits earlier answer, records shift signal, becomes structural",
+      "text": "One more thing. At the start, you said today was '{A1_OPEN}'. Looking back at everything we just talked through — does that word still fit? Or has your sense of the day shifted?",
+      "options": [
+        { "label": "Nope, still feels accurate",            "signal": null, "next": "CROSS_AXIS_D1" },
+        { "label": "Actually yes — it feels different now",  "signal": "shift:positive", "next": "CROSS_AXIS_D1" },
+        { "label": "It's more complicated than that word",   "signal": "shift:positive", "next": "CROSS_AXIS_D1" },
+        { "label": "I feel differently about it entirely",   "signal": "shift:positive", "next": "CROSS_AXIS_D1" }
+      ]
+    },
+
+    {
+      "id": "CROSS_AXIS_D1",
+      "type": "decision",
+      "comment": "FEATURE #1 (UPGRADED): Cross-axis decision routing. Uses multi_signal to detect rare psychological combinations and route to insight reflections. This enables combining signals into cross-axis insights.",
+      "routes": [
+        {
+          "condition": {
+            "type": "multi_signal",
+            "label": "Internal Locus + Contribution Orientation",
+            "conditions": [
+              { "axis": "axis1", "pole": "internal" },
+              { "axis": "axis2", "pole": "contribution" }
+            ]
+          },
+          "next": "RARE_COMBO_INTERNAL_CONTRIB"
+        },
+        {
+          "condition": {
+            "type": "multi_signal",
+            "label": "External Locus + Entitlement",
+            "conditions": [
+              { "axis": "axis1", "pole": "external" },
+              { "axis": "axis2", "pole": "entitlement" }
+            ]
+          },
+          "next": "EDGE_CASE_EXTERNAL_ENTITLE"
+        },
+        {
+          "condition": {
+            "type": "multi_signal",
+            "label": "Internal Locus + Entitlement",
+            "conditions": [
+              { "axis": "axis1", "pole": "internal" },
+              { "axis": "axis2", "pole": "entitlement" }
+            ]
+          },
+          "next": "TENSION_POINT_INTERNAL_ENTITLE"
+        },
+        {
+          "condition": { "type": "default" },
+          "next": "SUMMARY"
+        }
+      ]
+    },
+
+    {
+      "id": "RARE_COMBO_INTERNAL_CONTRIB",
+      "type": "reflection",
+      "comment": "Direct crossAxisInsight: internal_contribution (uses summaryTemplates)",
+      "text": "When you own your response to circumstances AND direct energy toward others, that's the most generative combination there is. It also happens to be the rarest. Most people drift toward one or the other — control without contribution, or generosity without agency. You managed both today.",
+      "next": "SUMMARY"
+    },
+
+    {
+      "id": "EDGE_CASE_EXTERNAL_ENTITLE",
+      "type": "reflection",
+      "comment": "FEATURE #3 (EDGE-CASE BRANCH): External locus + entitlement. Shows psychological understanding beyond template.",
+      "text": "Here's what today looked like from inside: it felt unfair AND outside your control. That's a tough intersection — you gave more than you received, and the outcomes weren't really in your hands anyway. The risk here isn't just frustration. It's learned helplessness dressed up as fairness consciousness. The experiment: tomorrow, ask yourself — even in circumstances I don't control, what tiny thing can I *still* choose? Not to fix everything. Just to stay in the game.",
+      "next": "SUMMARY"
+    },
+
+    {
+      "id": "TENSION_POINT_INTERNAL_ENTITLE",
+      "type": "reflection",
+      "comment": "Internal locus + entitlement creates productive tension. You own your choices AND notice unfairness.",
+      "text": "You stayed close to your agency today. The next experiment: point that same precision outward — toward what you can give, not just what you're owed. The tension you're carrying — between 'I own this' and 'this isn't fair' — is actually useful. Most mediocre people feel only one of those. You feel both. That's the place where real growth happens, if you don't let resentment calcify it.",
+      "next": "SUMMARY"
+    },
+
+    {
+      "id": "SUMMARY",
+      "type": "summary",
+      "comment": "Summary text is generated dynamically using summaryTemplates and accumulated signals. Includes actual user answers (FEATURE #7 UPGRADED). Now includes summaryLogic for evaluation transparency (FEATURE #5).",
+      "next": "END"
+    },
+
+    {
+      "id": "END",
+      "type": "end",
+      "text": "See you tomorrow.",
+      "next": null
+    }
+  ]
+};
+
+
+function loadTree() {
+  renderNode('START');
 }
 
 // ═══════════════════════════════════════════════════════════════
