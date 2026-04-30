@@ -1,151 +1,131 @@
-```mermaid
 flowchart TD
 
-    %% ── Node Style Classes ─────────────────────────────────────────────
     classDef startEnd   fill:#2D2416,stroke:#C8965A,color:#EAE0CC,font-weight:bold
     classDef question   fill:#0F1E2A,stroke:#7BAFC0,color:#EAE0CC
     classDef decision   fill:#1C1C0C,stroke:#C8965A,color:#C8965A
-    classDef reflection fill:#0F2415,stroke:#8FB897,color:#EAE0CC,font-style:italic
+    classDef reflection fill:#0F2415,stroke:#8FB897,color:#EAE0CC
     classDef bridge     fill:#2A1F0F,stroke:#C4A882,color:#C4A882
     classDef loopback   fill:#1F1A2A,stroke:#9B8FC8,color:#EAE0CC
     classDef crossAxis  fill:#2A0F0F,stroke:#C87B7B,color:#EAE0CC
     classDef summary    fill:#2D2416,stroke:#C8965A,color:#EAE0CC,font-weight:bold
 
-    %% ── Entry ──────────────────────────────────────────────────────────
-    START([🌙 START]):::startEnd
+    START([START]):::startEnd
 
-    %% ── AXIS I — LOCUS OF CONTROL ──────────────────────────────────────
-    subgraph AXIS1["  AXIS I — LOCUS OF CONTROL  "]
-        direction TB
-        A1_OPEN["❓ A1_OPEN\nOne word for today?"]:::question
-        A1_D1{A1_D1\nValence\nRouter}:::decision
-        A1_Q_HIGH["❓ A1_Q_HIGH\nWhat was behind\nwhat went well?"]:::question
-        A1_Q_LOW["❓ A1_Q_LOW\nFirst move when\nthings got hard?"]:::question
-        A1_D2{A1_D2\nDepth\nRouter}:::decision
-        A1_Q_DEPTH_HIGH["❓ A1_Q_DEPTH_HIGH\nAfter it worked —\nwhat happened next?"]:::question
-        A1_Q_DEPTH_LOW["❓ A1_Q_DEPTH_LOW\nWhat can I still do?\nor out of your hands?"]:::question
+    subgraph AXIS1["AXIS I — LOCUS OF CONTROL"]
+        A1_OPEN["A1_OPEN\nOne word for today?"]:::question
+        A1_D1{A1_D1\nValence Router}:::decision
+        A1_Q_HIGH["A1_Q_HIGH\nWhat was behind\nwhat went well?"]:::question
+        A1_Q_LOW["A1_Q_LOW\nFirst move when\nthings got hard?"]:::question
+        A1_D2{A1_D2\nDepth Router}:::decision
+        A1_Q_DEPTH_HIGH["A1_Q_DEPTH_HIGH\nAfter it worked —\nwhat happened next?"]:::question
+        A1_Q_DEPTH_LOW["A1_Q_DEPTH_LOW\nWhat can I still do?\nOr out of your hands?"]:::question
         A1_D3{A1_D3\nLocus Signal\nDominance}:::decision
-        A1_R_INTERNAL["💭 A1_R_INTERNAL\nYou stayed close\nto your own hand..."]:::reflection
-        A1_R_EXTERNAL["💭 A1_R_EXTERNAL\nA day like that pulls\nattention outward..."]:::reflection
+        A1_R_INTERNAL["A1_R_INTERNAL\nYou stayed close\nto your own hand..."]:::reflection
+        A1_R_EXTERNAL["A1_R_EXTERNAL\nA day like that pulls\nattention outward..."]:::reflection
     end
 
-    BRIDGE_1_2["🌉 BRIDGE_1_2\nAdaptive — text shifts\nby axis1 dominant signal"]:::bridge
+    BRIDGE_1_2["BRIDGE_1_2\nAdaptive bridge\naxis1 signal"]:::bridge
 
-    %% ── AXIS II — ORIENTATION ──────────────────────────────────────────
-    subgraph AXIS2["  AXIS II — ORIENTATION  "]
-        direction TB
-        A2_OPEN["❓ A2_OPEN\nHow did you show up\nfor someone today?"]:::question
-        A2_D1{A2_D1\nOrientation\nRouter}:::decision
-        A2_Q_CONTRIB["❓ A2_Q_CONTRIB\nNatural or\nworking at it?"]:::question
-        A2_Q_ENTITLE["❓ A2_Q_ENTITLE\nDid the feeling\nkeep returning?"]:::question
-        A2_D2{A2_D2\nDepth\nRouter}:::decision
-        A2_Q_DEPTH_CONTRIB["❓ A2_Q_DEPTH_CONTRIB\nDo you track\nwhat you're not getting?"]:::question
-        A2_Q_DEPTH_ENTITLE["❓ A2_Q_DEPTH_ENTITLE\nStory you tell yourself\nabout why?"]:::question
+    subgraph AXIS2["AXIS II — ORIENTATION"]
+        A2_OPEN["A2_OPEN\nHow did you show up\nfor someone today?"]:::question
+        A2_D1{A2_D1\nOrientation Router}:::decision
+        A2_Q_CONTRIB["A2_Q_CONTRIB\nNatural or\nworking at it?"]:::question
+        A2_Q_ENTITLE["A2_Q_ENTITLE\nDid the feeling\nkeep returning?"]:::question
+        A2_D2{A2_D2\nDepth Router}:::decision
+        A2_Q_DEPTH_CONTRIB["A2_Q_DEPTH_CONTRIB\nDo you track what\nyou are not getting?"]:::question
+        A2_Q_DEPTH_ENTITLE["A2_Q_DEPTH_ENTITLE\nStory you tell yourself\nabout why?"]:::question
         A2_D3{A2_D3\nOrientation Signal\nDominance}:::decision
-        A2_R_CONTRIB["💭 A2_R_CONTRIB\nHelping without being\nasked — a choice about\nwhat work means..."]:::reflection
-        A2_R_ENTITLE["💭 A2_R_ENTITLE\nThe feeling of giving\nmore than you receive\nis real..."]:::reflection
+        A2_R_CONTRIB["A2_R_CONTRIB\nHelping without being asked\na choice about what\nwork means..."]:::reflection
+        A2_R_ENTITLE["A2_R_ENTITLE\nThe feeling of giving\nmore than you receive\nis real..."]:::reflection
     end
 
-    BRIDGE_2_3["🌉 BRIDGE_2_3\nAdaptive — text shifts\nby axis2 dominant signal"]:::bridge
+    BRIDGE_2_3["BRIDGE_2_3\nAdaptive bridge\naxis2 signal"]:::bridge
 
-    %% ── AXIS III — RADIUS OF CONCERN ───────────────────────────────────
-    subgraph AXIS3["  AXIS III — RADIUS OF CONCERN  "]
-        direction TB
-        A3_OPEN["❓ A3_OPEN\nWho else comes\nto mind today?"]:::question
-        A3_D1{A3_D1\nRadius\nRouter}:::decision
-        A3_Q_SELF["❓ A3_Q_SELF\nCarrying it alone —\nwhat was it like?"]:::question
-        A3_Q_TEAM["❓ A3_Q_TEAM\nAware in the moment\nor only looking back?"]:::question
-        A3_Q_BEYOND["❓ A3_Q_BEYOND\nWhat made you\nlook past yourself?"]:::question
-        A3_D2{A3_D2\nDepth\nRouter}:::decision
-        A3_Q_DEPTH_SELF["❓ A3_Q_DEPTH_SELF\nGenuine strength\nor settled default?"]:::question
-        A3_Q_DEPTH_TEAM["❓ A3_Q_DEPTH_TEAM\nDoes team awareness\nshift your own challenges?"]:::question
-        A3_Q_DEPTH_BEYOND["❓ A3_Q_DEPTH_BEYOND\nHow often does\nbeyond-you thinking\nchange your decisions?"]:::question
+    subgraph AXIS3["AXIS III — RADIUS OF CONCERN"]
+        A3_OPEN["A3_OPEN\nWho else comes\nto mind today?"]:::question
+        A3_D1{A3_D1\nRadius Router}:::decision
+        A3_Q_SELF["A3_Q_SELF\nCarrying it alone\nwhat was it like?"]:::question
+        A3_Q_TEAM["A3_Q_TEAM\nAware in the moment\nor only looking back?"]:::question
+        A3_Q_BEYOND["A3_Q_BEYOND\nWhat made you\nlook past yourself?"]:::question
+        A3_D2{A3_D2\nDepth Router}:::decision
+        A3_Q_DEPTH_SELF["A3_Q_DEPTH_SELF\nGenuine strength\nor settled default?"]:::question
+        A3_Q_DEPTH_TEAM["A3_Q_DEPTH_TEAM\nDoes team awareness\nshift your challenges?"]:::question
+        A3_Q_DEPTH_BEYOND["A3_Q_DEPTH_BEYOND\nHow often does beyond-you\nthinking change decisions?"]:::question
         A3_D3{A3_D3\nRadius Signal\nDominance}:::decision
-        A3_R_SELF["💭 A3_R_SELF\nIndependence has value —\nis it a choice\nor a default?"]:::reflection
-        A3_R_COLLECTIVE["💭 A3_R_COLLECTIVE\nYou held your own\nexperience and awareness\nof others simultaneously..."]:::reflection
-        A3_R_TRANSCENDENT["💭 A3_R_TRANSCENDENT\nYou looked past your\nown frame — Maslow's\nself-transcendence..."]:::reflection
+        A3_R_SELF["A3_R_SELF\nIndependence has value\nis it a choice\nor a default?"]:::reflection
+        A3_R_COLLECTIVE["A3_R_COLLECTIVE\nYou held your own experience\nand awareness of others\nsimultaneously..."]:::reflection
+        A3_R_TRANSCENDENT["A3_R_TRANSCENDENT\nYou looked past your\nown frame — Maslow's\nself-transcendence..."]:::reflection
     end
 
-    %% ── Loopback & Cross-Axis Synthesis ────────────────────────────────
-    A3_LOOPBACK{{"🔄 A3_LOOPBACK\nDoes that opening\nword still fit?"}}:::loopback
+    A3_LOOPBACK{"A3_LOOPBACK\nDoes that opening\nword still fit?"}:::loopback
 
-    subgraph CROSSAXIS["  CROSS-AXIS SYNTHESIS  "]
-        direction TB
-        CROSS_AXIS_D1{CROSS_AXIS_D1\naxis1 × axis2\nCombination}:::decision
-        RARE_COMBO_INTERNAL_CONTRIB["⭐ RARE_COMBO\nInternal + Contribution\nThe rarest path"]:::crossAxis
-        EDGE_CASE_EXTERNAL_ENTITLE["⚠️ EDGE_CASE\nExternal + Entitlement\nToughest intersection"]:::crossAxis
-        TENSION_POINT_INTERNAL_ENTITLE["⚡ TENSION_POINT\nInternal + Entitlement\nProductive tension"]:::crossAxis
+    subgraph CROSSAXIS["CROSS-AXIS SYNTHESIS"]
+        CROSS_AXIS_D1{CROSS_AXIS_D1\naxis1 x axis2\nCombination}:::decision
+        RARE_COMBO["RARE_COMBO\nInternal plus Contribution\nThe rarest path"]:::crossAxis
+        EDGE_CASE["EDGE_CASE\nExternal plus Entitlement\nToughest intersection"]:::crossAxis
+        TENSION_POINT["TENSION_POINT\nInternal plus Entitlement\nProductive tension"]:::crossAxis
     end
 
-    SUMMARY[["📋 SUMMARY\nSynthesised from all\naccumulated signals"]]:::summary
-    END([✨ END\nSee you tomorrow.]):::startEnd
+    SUMMARY[["SUMMARY\nSynthesised from all\naccumulated signals"]]:::summary
+    END([END]):::startEnd
 
-    %% ── Edges: Entry → Axis I ──────────────────────────────────────────
     START --> A1_OPEN
     A1_OPEN --> A1_D1
-    A1_D1 -->|Productive / Mixed| A1_Q_HIGH
-    A1_D1 -->|Tough / Draining| A1_Q_LOW
+    A1_D1 -->|Productive or Mixed| A1_Q_HIGH
+    A1_D1 -->|Tough or Draining| A1_Q_LOW
     A1_Q_HIGH --> A1_D2
-    A1_Q_LOW  --> A1_D2
+    A1_Q_LOW --> A1_D2
     A1_D2 -->|positive valence| A1_Q_DEPTH_HIGH
     A1_D2 -->|negative valence| A1_Q_DEPTH_LOW
     A1_Q_DEPTH_HIGH --> A1_D3
-    A1_Q_DEPTH_LOW  --> A1_D3
+    A1_Q_DEPTH_LOW --> A1_D3
     A1_D3 -->|internal dominant| A1_R_INTERNAL
     A1_D3 -->|external dominant| A1_R_EXTERNAL
     A1_R_INTERNAL --> BRIDGE_1_2
     A1_R_EXTERNAL --> BRIDGE_1_2
 
-    %% ── Edges: Bridge → Axis II ────────────────────────────────────────
     BRIDGE_1_2 --> A2_OPEN
     A2_OPEN --> A2_D1
     A2_D1 -->|contribution| A2_Q_CONTRIB
-    A2_D1 -->|entitlement|  A2_Q_ENTITLE
-    A2_Q_CONTRIB  --> A2_D2
-    A2_Q_ENTITLE  --> A2_D2
+    A2_D1 -->|entitlement| A2_Q_ENTITLE
+    A2_Q_CONTRIB --> A2_D2
+    A2_Q_ENTITLE --> A2_D2
     A2_D2 -->|contribution| A2_Q_DEPTH_CONTRIB
-    A2_D2 -->|entitlement|  A2_Q_DEPTH_ENTITLE
-    A2_Q_DEPTH_CONTRIB  --> A2_D3
-    A2_Q_DEPTH_ENTITLE  --> A2_D3
+    A2_D2 -->|entitlement| A2_Q_DEPTH_ENTITLE
+    A2_Q_DEPTH_CONTRIB --> A2_D3
+    A2_Q_DEPTH_ENTITLE --> A2_D3
     A2_D3 -->|contribution dominant| A2_R_CONTRIB
-    A2_D3 -->|entitlement dominant|  A2_R_ENTITLE
-    A2_R_CONTRIB  --> BRIDGE_2_3
-    A2_R_ENTITLE  --> BRIDGE_2_3
+    A2_D3 -->|entitlement dominant| A2_R_ENTITLE
+    A2_R_CONTRIB --> BRIDGE_2_3
+    A2_R_ENTITLE --> BRIDGE_2_3
 
-    %% ── Edges: Bridge → Axis III ───────────────────────────────────────
     BRIDGE_2_3 --> A3_OPEN
     A3_OPEN --> A3_D1
-    A3_D1 -->|self|           A3_Q_SELF
-    A3_D1 -->|team|           A3_Q_TEAM
-    A3_D1 -->|other / beyond| A3_Q_BEYOND
-    A3_Q_SELF   --> A3_D2
-    A3_Q_TEAM   --> A3_D2
+    A3_D1 -->|self| A3_Q_SELF
+    A3_D1 -->|team| A3_Q_TEAM
+    A3_D1 -->|other or beyond| A3_Q_BEYOND
+    A3_Q_SELF --> A3_D2
+    A3_Q_TEAM --> A3_D2
     A3_Q_BEYOND --> A3_D2
-    A3_D2 -->|self|           A3_Q_DEPTH_SELF
-    A3_D2 -->|team|           A3_Q_DEPTH_TEAM
-    A3_D2 -->|other / beyond| A3_Q_DEPTH_BEYOND
-    A3_Q_DEPTH_SELF   --> A3_D3
-    A3_Q_DEPTH_TEAM   --> A3_D3
+    A3_D2 -->|self| A3_Q_DEPTH_SELF
+    A3_D2 -->|team| A3_Q_DEPTH_TEAM
+    A3_D2 -->|other or beyond| A3_Q_DEPTH_BEYOND
+    A3_Q_DEPTH_SELF --> A3_D3
+    A3_Q_DEPTH_TEAM --> A3_D3
     A3_Q_DEPTH_BEYOND --> A3_D3
-    A3_D3 -->|self dominant|   A3_R_SELF
-    A3_D3 -->|team dominant|   A3_R_COLLECTIVE
-    A3_D3 -->|other / beyond|  A3_R_TRANSCENDENT
-
-    %% ── Edges: Loopback & Synthesis ────────────────────────────────────
-    A3_R_SELF         --> A3_LOOPBACK
-    A3_R_COLLECTIVE   --> A3_LOOPBACK
+    A3_D3 -->|self dominant| A3_R_SELF
+    A3_D3 -->|team dominant| A3_R_COLLECTIVE
+    A3_D3 -->|other or beyond| A3_R_TRANSCENDENT
+    A3_R_SELF --> A3_LOOPBACK
+    A3_R_COLLECTIVE --> A3_LOOPBACK
     A3_R_TRANSCENDENT --> A3_LOOPBACK
 
     A3_LOOPBACK --> CROSS_AXIS_D1
-
-    CROSS_AXIS_D1 -->|internal + contribution|  RARE_COMBO_INTERNAL_CONTRIB
-    CROSS_AXIS_D1 -->|external + entitlement|   EDGE_CASE_EXTERNAL_ENTITLE
-    CROSS_AXIS_D1 -->|internal + entitlement|   TENSION_POINT_INTERNAL_ENTITLE
-    CROSS_AXIS_D1 -->|default / ext+contrib|    SUMMARY
-
-    RARE_COMBO_INTERNAL_CONTRIB    --> SUMMARY
-    EDGE_CASE_EXTERNAL_ENTITLE     --> SUMMARY
-    TENSION_POINT_INTERNAL_ENTITLE --> SUMMARY
-
+    CROSS_AXIS_D1 -->|internal plus contribution| RARE_COMBO
+    CROSS_AXIS_D1 -->|external plus entitlement| EDGE_CASE
+    CROSS_AXIS_D1 -->|internal plus entitlement| TENSION_POINT
+    CROSS_AXIS_D1 -->|default| SUMMARY
+    RARE_COMBO --> SUMMARY
+    EDGE_CASE --> SUMMARY
+    TENSION_POINT --> SUMMARY
     SUMMARY --> END
-```
